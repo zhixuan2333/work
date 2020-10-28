@@ -1,0 +1,5 @@
+{
+    "go.autocompleteUnimportedPackages": true,
+    "go.docsTool": "gogetdoc",
+    "go.formatTool": "goimports",
+}
