@@ -116,7 +116,10 @@ func main() {
 	mux.HandleFunc("/login", login)
 	mux.HandleFunc("/c", sayhelloName)
 	mux.HandleFunc("/line", sendlinemsg)
-
-	http.ListenAndServe(":12345", mux)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "12345"
+	}
+	http.ListenAndServe(":"+port, mux)
 
 }
