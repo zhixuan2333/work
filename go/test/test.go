@@ -2,25 +2,28 @@ package main
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/spf13/viper"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strings"
 )
 
-func conf() (string, string) {
-	viper.SetConfigName("config") //设置配置文件的名字
-	viper.AddConfigPath(".")      //添加配置文件所在的路径
-	viper.SetConfigType("yaml")   //设置配置文件类型，可选
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Printf("config file error: %s\n", err)
-		os.Exit(1)
-	}
-	channelS := viper.GetString("channel.secret")
-	channelT := viper.GetString("channel.token")
-	return channelS, channelT
-}
-
 func main() {
-	channelS, channelT := conf()
+	client := &http.Client{}
+	var data = strings.NewReader(`{ "to": "U4af4980629...", "messages":[ { "type":"text", "text":"Hello, world1" }, { "type":"text", "text":"Hello, world2" } ] }`)
+	req, err := http.NewRequest("POST", "https://api.line.me/v2/bot/message/push", data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer {channel access token}")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bodyText, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%s\n", bodyText)
 }
