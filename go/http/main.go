@@ -13,6 +13,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	channelS    string
+	channelT    string
+	callbackURL string
+	token       string
+)
+
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	fmt.Println(r.Form)
@@ -55,7 +62,7 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("key:", k)
 		fmt.Println("val:", strings.Join(v, ""))
 	}
-	fmt.Fprintf(w, "Hello World!") //这个写入到w的是输出到客户端的
+	io.WriteString(w, "Hello World!") //这个写入到w的是输出到客户端的
 }
 
 func sendlinemsg(w http.ResponseWriter, r *http.Request) {
@@ -120,6 +127,9 @@ func main() {
 	if port == "" {
 		port = "12345"
 	}
+	channelS = os.Getenv("ClientID")
+	channelT = os.Getenv("ClientSecret")
+	callbackURL = os.Getenv("CallbackURL")
 	http.ListenAndServe(":"+port, mux)
 
 }
