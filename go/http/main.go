@@ -1,13 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"strings"
-	"text/template"
+	"time"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/spf13/viper"
@@ -19,51 +19,6 @@ var (
 	callbackURL string
 	token       string
 )
-
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	fmt.Println(r.Form)
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Scheme)
-	fmt.Println(r.Form["url_long"])
-	for k, v := range r.Form {
-		fmt.Println("key:", k)
-		fmt.Println("val:", strings.Join(v, ""))
-	}
-	io.WriteString(w, "Hello, world!\n")
-}
-
-func echoHandler(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, r.URL.Path)
-}
-
-func login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("method:", r.Method) //获取请求的方法
-	if r.Method == "GET" {
-		t, _ := template.ParseFiles("login.gtpl")
-		log.Println(t.Execute(w, nil))
-	} else {
-		r.ParseForm()
-
-		//请求的是登录数据，那么执行登录的逻辑判断
-		fmt.Println("username:", r.Form["username"])
-		fmt.Println("password:", r.Form["password"])
-		io.WriteString(w, "helloworld")
-	}
-}
-
-func sayhelloName(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()       //解析参数，默认是不会解析的
-	fmt.Println(r.Form) //这些信息是输出到服务器端的打印信息
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Scheme)
-	fmt.Println(r.Form["url_long"])
-	for k, v := range r.Form {
-		fmt.Println("key:", k)
-		fmt.Println("val:", strings.Join(v, ""))
-	}
-	io.WriteString(w, "Hello World!") //这个写入到w的是输出到客户端的
-}
 
 func sendlinemsg(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -116,13 +71,29 @@ func lineconf() (string, string) {
 	return channelS, channelT
 }
 
+type linepost struct {
+	Success    bool   `json:"success"`
+	Timestamp  string `json:"timestamp"`
+	StatusCode int    `json:"statusCode"`
+	Reason     string `json:"reason"`
+	Detail     string `json:"detail"`
+}
+
+func endpoint(w http.ResponseWriter, r *http.Request) {
+	t := time.Now().Format("2006-01-02 15:04:05")
+	rsp := linepost{true, t, 200, "OK", "200"}
+	js, err := json.Marshal(rsp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", helloHandler)
-	mux.HandleFunc("/", echoHandler)
-	mux.HandleFunc("/login", login)
-	mux.HandleFunc("/c", sayhelloName)
 	mux.HandleFunc("/line", sendlinemsg)
+	mux.HandleFunc("/hoge", endpoint)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "12345"
@@ -131,5 +102,4 @@ func main() {
 	channelT = os.Getenv("ClientSecret")
 	callbackURL = os.Getenv("CallbackURL")
 	http.ListenAndServe(":"+port, mux)
-
 }
