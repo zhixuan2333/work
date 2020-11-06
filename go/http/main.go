@@ -1,8 +1,12 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -80,6 +84,8 @@ type linepost struct {
 }
 
 func endpoint(w http.ResponseWriter, r *http.Request) {
+	header := r.Header
+	fmt.Println(w, "Header全部数据:", header)
 	t := time.Now().Format("2006-01-02 15:04:05")
 	rsp := linepost{true, t, 200, "OK", "200"}
 	js, err := json.Marshal(rsp)
@@ -88,6 +94,20 @@ func endpoint(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
+
+	body, _ := ioutil.ReadAll(r.Body)
+	decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
+	status := CheckMAC(body, decoded)
+	fmt.Println(body)
+	fmt.Println(decoded)
+	fmt.Println(status)
+}
+
+func CheckMAC(message, messageMAC []byte) bool {
+	mac := hmac.New(sha256.New, []byte(channelS))
+	mac.Write(message)
+	expectedMAC := mac.Sum(nil)
+	return hmac.Equal(messageMAC, expectedMAC)
 }
 
 func main() {
