@@ -24,16 +24,9 @@ var (
 	token       string
 )
 
+// sendlinemsg to send msg to user
 func sendlinemsg(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	fmt.Println(r.Form) //这些信息是输出到服务器端的打印信息
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Scheme)
-	fmt.Println(r.Form["url_long"])
-	for k, v := range r.Form {
-		fmt.Println("key:", k)
-		fmt.Println("val:", strings.Join(v, ""))
-	}
 	var userIDs []string
 	var msg string
 	for k, v := range r.Form {
@@ -48,10 +41,21 @@ func sendlinemsg(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(userIDs)
 	fmt.Println(msg)
 	linesendmsg(userIDs, msg)
+
+	t := time.Now().Format("2006-01-02 15:04:05")
+
+	rsp := linepost{true, t, 200, "OK", "200"}
+	js, err := json.Marshal(rsp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+
 }
 
+// linsendmsg to send line msg
 func linesendmsg(userIDs []string, msg string) {
-	channelS, channelT := lineconf()
 	bot, err := linebot.New(channelS, channelT)
 	if err != nil {
 		log.Printf("Create a line bot failed: %s\n", err.Error())
@@ -61,20 +65,7 @@ func linesendmsg(userIDs []string, msg string) {
 	}
 }
 
-func lineconf() (string, string) {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	viper.SetConfigType("yaml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Printf("config file failed: %s\n", err.Error())
-		os.Exit(1)
-	}
-	channelS := viper.GetString("channel.secret")
-	channelT := viper.GetString("channel.token")
-	return channelS, channelT
-}
-
+// linepost is rep json
 type linepost struct {
 	Success    bool   `json:"success"`
 	Timestamp  string `json:"timestamp"`
@@ -83,26 +74,30 @@ type linepost struct {
 	Detail     string `json:"detail"`
 }
 
+// endpoint is webhook
 func endpoint(w http.ResponseWriter, r *http.Request) {
-	header := r.Header
-	fmt.Println(w, "Header全部数据:", header)
-	t := time.Now().Format("2006-01-02 15:04:05")
-	rsp := linepost{true, t, 200, "OK", "200"}
-	js, err := json.Marshal(rsp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
-
+	r.ParseForm()
 	body, _ := ioutil.ReadAll(r.Body)
 	decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
 	status := CheckMAC(body, decoded)
-	fmt.Println(body)
-	fmt.Println(decoded)
-	fmt.Println(status)
+
+	if status {
+		t := time.Now().Format("2006-01-02 15:04:05")
+		rsp := linepost{true, t, 200, "OK", "200"}
+		js, err := json.Marshal(rsp)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+
+	} else {
+
+	}
+
 }
 
+// CheckMAC to check hash
 func CheckMAC(message, messageMAC []byte) bool {
 	mac := hmac.New(sha256.New, []byte(channelS))
 	mac.Write(message)
@@ -114,12 +109,30 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/line", sendlinemsg)
 	mux.HandleFunc("/hoge", endpoint)
+
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.SetConfigType("yaml")
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Printf("config file failed: %s\n", err.Error())
+		os.Exit(1)
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "12345"
 	}
-	channelS = os.Getenv("ClientID")
-	channelT = os.Getenv("ClientSecret")
+
+	channelS = os.Getenv("channelS")
+	if channelS == "" {
+		channelS = viper.GetString("channel.secret")
+	}
+
+	channelT = os.Getenv("channelT")
+	if channelT == "" {
+		channelT = viper.GetString("channel.token")
+	}
 	callbackURL = os.Getenv("CallbackURL")
 	http.ListenAndServe(":"+port, mux)
 }
