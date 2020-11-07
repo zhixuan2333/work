@@ -40,29 +40,41 @@ func sendlinemsg(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(userIDs)
 	fmt.Println(msg)
-	linesendmsg(userIDs, msg)
+	err := linesendmsg(userIDs, msg)
 
-	t := time.Now().Format("2006-01-02 15:04:05")
-
-	rsp := linepost{true, t, 200, "OK", "200"}
-	js, err := json.Marshal(rsp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err {
+		Resp(w, 200, "OK")
+	} else {
+		Resp(w, -1, "failed")
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+
+}
+
+// endpoint is webhook
+func endpoint(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	body, _ := ioutil.ReadAll(r.Body)
+	decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
+	status := CheckMAC(body, decoded)
+
+	if status {
+		Resp(w, 200, "OK")
+	}
 
 }
 
 // linsendmsg to send line msg
-func linesendmsg(userIDs []string, msg string) {
+func linesendmsg(userIDs []string, msg string) bool {
 	bot, err := linebot.New(channelS, channelT)
 	if err != nil {
 		log.Printf("Create a line bot failed: %s\n", err.Error())
+		return false
 	}
 	if _, err := bot.Multicast(userIDs, linebot.NewTextMessage(msg)).Do(); err != nil {
 		log.Printf("Send massage failed: %s\n", err.Error())
+		return false
 	}
+	return true
 }
 
 // linepost is rep json
@@ -74,26 +86,24 @@ type linepost struct {
 	Detail     string `json:"detail"`
 }
 
-// endpoint is webhook
-func endpoint(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	body, _ := ioutil.ReadAll(r.Body)
-	decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
-	status := CheckMAC(body, decoded)
+// Resp rsp json msg
+func Resp(w http.ResponseWriter, statusCode int, reason string) {
+	var rsp linepost
 
-	if status {
-		t := time.Now().Format("2006-01-02 15:04:05")
-		rsp := linepost{true, t, 200, "OK", "200"}
-		js, err := json.Marshal(rsp)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(js)
-
+	t := time.Now().Format("2006-01-02 15:04:05")
+	if statusCode == 200 {
+		rsp = linepost{true, t, statusCode, reason, "200"}
 	} else {
-
+		rsp = linepost{false, t, -1, "failed", "-1"}
 	}
+
+	js, err := json.Marshal(rsp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 
 }
 
