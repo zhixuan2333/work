@@ -38,6 +38,7 @@ func sendlinemsg(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
+
 	fmt.Println(userIDs)
 	fmt.Println(msg)
 	err := linesendmsg(userIDs, msg)
@@ -66,15 +67,19 @@ func endpoint(w http.ResponseWriter, r *http.Request) {
 // linsendmsg to send line msg
 func linesendmsg(userIDs []string, msg string) bool {
 	bot, err := linebot.New(channelS, channelT)
+
 	if err != nil {
 		log.Printf("Create a line bot failed: %s\n", err.Error())
 		return false
 	}
+
 	if _, err := bot.Multicast(userIDs, linebot.NewTextMessage(msg)).Do(); err != nil {
 		log.Printf("Send massage failed: %s\n", err.Error())
 		return false
 	}
+
 	return true
+
 }
 
 // linepost is rep json
@@ -113,6 +118,7 @@ func CheckMAC(message, messageMAC []byte) bool {
 	mac.Write(message)
 	expectedMAC := mac.Sum(nil)
 	return hmac.Equal(messageMAC, expectedMAC)
+
 }
 
 func main() {
@@ -145,4 +151,5 @@ func main() {
 	}
 	callbackURL = os.Getenv("CallbackURL")
 	http.ListenAndServe(":"+port, mux)
+
 }
