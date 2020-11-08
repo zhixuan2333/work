@@ -287,8 +287,11 @@ func ffmpeg(dst, src, OS string) {
 				fw.Close()
 				fr.Close()
 			}
+
 		}
+
 	}
+
 }
 
 func main() {
