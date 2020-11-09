@@ -131,8 +131,7 @@ func main() {
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Printf("config file failed: %s\n", err.Error())
-		os.Exit(1)
+		log.Printf("load config file failed: %s\n", err.Error())
 	}
 
 	port := os.Getenv("PORT")
