@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,6 +24,17 @@ var (
 	callbackURL string
 	token       string
 )
+
+// Root Send msg to root
+func Root(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, err := template.ParseFiles("main.gtpl")
+		if err != nil {
+			log.Printf("root failed: %e", err)
+		}
+		t.Execute(w, nil)
+	}
+}
 
 // sendlinemsg to send msg to user
 func sendlinemsg(w http.ResponseWriter, r *http.Request) {
@@ -123,6 +135,7 @@ func CheckMAC(message, messageMAC []byte) bool {
 
 func main() {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", Root)
 	mux.HandleFunc("/line", sendlinemsg)
 	mux.HandleFunc("/hoge", endpoint)
 
