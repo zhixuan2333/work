@@ -12,4 +12,10 @@
 ## note
 
 go mod init heroku
+
+
 go mod tidy
+
+heroku container:push web
+
+heroku container:release web

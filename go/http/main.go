@@ -19,10 +19,8 @@ import (
 )
 
 var (
-	channelS    string
-	channelT    string
-	callbackURL string
-	token       string
+	channelS string
+	channelT string
 )
 
 // Root Send msg to root
@@ -161,7 +159,7 @@ func main() {
 	if channelT == "" {
 		channelT = viper.GetString("channel.token")
 	}
-	callbackURL = os.Getenv("CallbackURL")
+
 	http.ListenAndServe(":"+port, mux)
 
 }
