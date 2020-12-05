@@ -79,20 +79,19 @@ func systemversion() string {
 
 }
 
-var commands = map[string]string{
-	"windows": "start",
-	"darwin":  "open",
-	"linux":   "xdg-open",
-}
-
 // Open open url
-func Open(url string) error {
-	run, ok := commands[runtime.GOOS]
-	if !ok {
-		return fmt.Errorf("don't know how to open things on %s platform", runtime.GOOS)
-	}
+func Open(url, OS string) error {
 
-	cmd := exec.Command(run, url)
+	var cmd *exec.Cmd
+	if OS == "win32" {
+		cmd = exec.Command("cmd", "/C", "start", url)
+	}
+	if OS == "linux" {
+		cmd = exec.Command("bash", "-c", "xdg-open", url)
+	}
+	if OS == "darwin" {
+		cmd = exec.Command("open", url)
+	}
 	return cmd.Start()
 }
 
@@ -108,13 +107,8 @@ func main() {
 	fmt.Printf("OS: %s\n", OS)
 	url := "https://github.com/electron/electron/releases/download/v" + yarnrc + "/electron-v" + yarnrc + "-" + OS + "-" + arch + ".zip"
 
-	cmd := exec.Command("cmd /C start", url)
-	err := cmd.Start()
-	if err != nil {
-		log.Fatal(err)
-	}
 	fmt.Println(url)
-	err = Open(url)
+	err := Open(url, OS)
 	if err != nil {
 		log.Fatal("Open url failed: ", err)
 	}
