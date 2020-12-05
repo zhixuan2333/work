@@ -26,7 +26,7 @@ var (
 // Root Send msg to root
 func Root(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		t, err := template.ParseFiles("main.gtpl")
+		t, err := template.ParseFiles("main.html")
 		if err != nil {
 			log.Printf("root failed: %e", err)
 		}
@@ -64,12 +64,15 @@ func sendlinemsg(w http.ResponseWriter, r *http.Request) {
 // endpoint is webhook
 func endpoint(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	body, _ := ioutil.ReadAll(r.Body)
-	decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
-	status := CheckMAC(body, decoded)
 
-	if status {
-		Resp(w, 200, "OK")
+	if r.Method == "POST" {
+		body, _ := ioutil.ReadAll(r.Body)
+		decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
+
+		if CheckMAC(body, decoded) {
+			Resp(w, 200, "OK")
+		}
+
 	}
 
 }
@@ -96,11 +99,22 @@ func linesendmsg(userIDs []string, msg string) bool {
 func Resp(w http.ResponseWriter, statusCode int, reason string) {
 	var rsp linepost
 
+	rsp.Success = false
+
 	t := time.Now().Format("2006-01-02 15:04:05")
 	if statusCode == 200 {
-		rsp = linepost{true, t, statusCode, reason, "200"}
+		rsp.Success = true
+		rsp.Timestamp = t
+		rsp.StatusCode = statusCode
+		rsp.Reason = reason
+		rsp.Detail = "200"
 	} else {
-		rsp = linepost{false, t, -1, "failed", "-1"}
+
+		rsp.Success = false
+		rsp.Timestamp = t
+		rsp.StatusCode = statusCode
+		rsp.Reason = reason
+		rsp.Detail = "-1"
 	}
 
 	js, err := json.Marshal(rsp)
