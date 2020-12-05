@@ -92,15 +92,6 @@ func linesendmsg(userIDs []string, msg string) bool {
 
 }
 
-// linepost is rep json
-type linepost struct {
-	Success    bool   `json:"success"`
-	Timestamp  string `json:"timestamp"`
-	StatusCode int    `json:"statusCode"`
-	Reason     string `json:"reason"`
-	Detail     string `json:"detail"`
-}
-
 // Resp rsp json msg
 func Resp(w http.ResponseWriter, statusCode int, reason string) {
 	var rsp linepost
