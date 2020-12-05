@@ -4,8 +4,9 @@
 - go
     - [autobackup](./go/autobackup)
         - 一键backup
-    - [vscode_ffmpeg_go](./go/vscode_ffmpeg_go)
-        - 一键获取vscode_version的ffmpeg文件
+    - [vscode_ffmpeg_go](./go/vscode_electron)
+        - 获取 ```vscode``` 对应的 ```electron``` 文件
+    
 - py
     - m3u8
 
