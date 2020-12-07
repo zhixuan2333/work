@@ -1,4 +1,0 @@
-#line
-channel:
-  secret: <line channel secret>
-  token: <line channel token>
