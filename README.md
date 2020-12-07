@@ -8,8 +8,6 @@
         - 获取 ```vscode``` 对应的 ```electron``` 文件
     - [line](./go/line)
         - line webhook server
-- py
-    - m3u8
 
 ## note
 
