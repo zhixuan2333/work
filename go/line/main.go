@@ -66,13 +66,26 @@ func endpoint(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	if r.Method == "POST" {
-		body, _ := ioutil.ReadAll(r.Body)
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Fatal("Get resp body failed: ", err)
+		}
 		decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
 
 		if CheckMAC(body, decoded) {
 			Resp(w, 200, "OK")
+		} else {
+			Resp(w, -1, "Unauthorized access")
 		}
 
+	} else {
+
+		t, err := template.ParseFiles("main.html")
+		if err != nil {
+			log.Printf("root failed: %e", err)
+		}
+		t.Execute(w, nil)
 	}
 
 }
