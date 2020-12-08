@@ -54,9 +54,9 @@ func sendlinemsg(w http.ResponseWriter, r *http.Request) {
 	err := linesendmsg(userIDs, msg)
 
 	if err {
-		Resp(w, 200, "OK")
+		Resp(w, 200, "OK", "")
 	} else {
-		Resp(w, -1, "failed")
+		Resp(w, -100, "failed", "err")
 	}
 
 }
@@ -74,9 +74,9 @@ func endpoint(w http.ResponseWriter, r *http.Request) {
 		decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
 
 		if CheckMAC(body, decoded) {
-			Resp(w, 200, "OK")
+			Resp(w, 200, "OK", "")
 		} else {
-			Resp(w, -1, "Unauthorized access")
+			Resp(w, -1, "Unauthorized access", "")
 		}
 
 	} else {
@@ -109,25 +109,33 @@ func linesendmsg(userIDs []string, msg string) bool {
 }
 
 // Resp rsp json msg
-func Resp(w http.ResponseWriter, statusCode int, reason string) {
+func Resp(w http.ResponseWriter, statusCode int, reason, Detail string) {
 	var rsp linepost
 
 	rsp.Success = false
 
 	t := time.Now().Format("2006-01-02 15:04:05")
 	if statusCode == 200 {
+
 		rsp.Success = true
 		rsp.Timestamp = t
 		rsp.StatusCode = statusCode
 		rsp.Reason = reason
 		rsp.Detail = "200"
-	} else {
+	} else if statusCode == -1 {
 
 		rsp.Success = false
 		rsp.Timestamp = t
 		rsp.StatusCode = statusCode
 		rsp.Reason = reason
 		rsp.Detail = "-1"
+	} else {
+
+		rsp.Success = false
+		rsp.Timestamp = t
+		rsp.StatusCode = statusCode
+		rsp.Reason = reason
+		rsp.Detail = Detail
 	}
 
 	js, err := json.Marshal(rsp)
