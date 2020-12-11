@@ -8,7 +8,6 @@ import (
 // Root Send msg to root
 func Root(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-
 		Mainpage(w)
 	}
 }
