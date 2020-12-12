@@ -9,6 +9,8 @@ import (
 func Root(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		Mainpage(w)
+	} else {
+		w.Write([]byte("Error"))
 	}
 }
 
@@ -19,7 +21,7 @@ func Getip(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(out))
 
 	} else {
-		w.Write([]byte("Err: the success method is GET"))
+		w.Write([]byte("Error"))
 	}
 }
 
