@@ -21,7 +21,7 @@ func Getip(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(out))
 
 	} else {
-		w.Write([]byte("Error"))
+		w.Write([]byte("Method Not Allowed"))
 	}
 }
 
