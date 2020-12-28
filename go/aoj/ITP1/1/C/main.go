@@ -3,8 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	var x int
-	var y int
+	var x, y int
 	fmt.Scan(&x, &y)
 
 	s := x * y
