@@ -7,7 +7,7 @@ import (
 
 func main() {
 	var a int
-	var S, H, C, D []int
+	var S [][]int
 
 	fmt.Scan(&a)
 
@@ -17,25 +17,25 @@ func main() {
 
 		fmt.Scan(&y, &x)
 
-		if y == "S" {
-			S = append(S, x)
-			continue
-		} else if y == "H" {
-			H = append(H, x)
-			continue
-		} else if y == "C" {
-			C = append(C, x)
-			continue
-		} else if y == "D" {
-			D = append(D, x)
-			continue
-		}
 	}
 	sort.Ints(S)
 
 	fmt.Println(S)
 }
 
-func check(a int) bool {
-	num := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
+func check(a int, list []int) []int {
+	sort.Ints(list)
+	var out []int
+
+	for i := 0; i < a; {
+		l := list[i]
+
+		if l != i+1 {
+			out = append(out, l)
+		} else {
+			i++
+		}
+	}
+
+	return out
 }
