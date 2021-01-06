@@ -2,40 +2,38 @@ package main
 
 import (
 	"fmt"
-	"sort"
 )
 
 func main() {
-	var a int
-	var S [][]int
+	var v int
+	list := make([][]int, 4)
+	mark := []string{"S", "H", "C", "D"}
 
-	fmt.Scan(&a)
+	for i := 0; i < 4; i++ {
+		list[i] = make([]int, 13)
+	}
 
-	for i := 0; i < a; i++ {
-		var x int
-		var y string
+	fmt.Scan(&v)
 
-		fmt.Scan(&y, &x)
+	for i := 0; i < v; i++ {
+		var mk string
+		var num int
+
+		fmt.Scan(&mk, &num)
+
+		for j := 0; j < 4; j++ {
+			if mark[j] == mk {
+				list[j][num-1] = 1
+			}
+		}
 
 	}
-	sort.Ints(S)
 
-	fmt.Println(S)
-}
-
-func check(a int, list []int) []int {
-	sort.Ints(list)
-	var out []int
-
-	for i := 0; i < a; {
-		l := list[i]
-
-		if l != i+1 {
-			out = append(out, l)
-		} else {
-			i++
+	for j := 0; j < 4; j++ {
+		for i := 0; i < 13; i++ {
+			if list[j][i] == 0 {
+				fmt.Printf("%s %d\n", mark[j], i+1)
+			}
 		}
 	}
-
-	return out
 }
