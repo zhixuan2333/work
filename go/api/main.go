@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// Root Send msg to root
+// Root send message to root
 func Root(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		Mainpage(w)
