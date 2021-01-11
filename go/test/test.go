@@ -3,12 +3,17 @@ package main
 import "fmt"
 
 func main() {
-	var x int
-	var y int
-	fmt.Scan(&x, &y)
+	/* 定义局部变量 */
+	var a int = 10
 
-	s := x * y
-	c := (x + y) * 2
-
-	fmt.Println(s, c)
+	/* for 循环 */
+	for a < 20 {
+		if a == 15 {
+			/* 跳过此次循环 */
+			a = a + 1
+			continue
+		}
+		fmt.Printf("a 的值为 : %d\n", a)
+		a++
+	}
 }
