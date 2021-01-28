@@ -5,10 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-<<<<<<< Updated upstream
-=======
 	"os"
->>>>>>> Stashed changes
 
 	"cloud.google.com/go/storage"
 	firebase "firebase.google.com/go"
@@ -16,14 +13,6 @@ import (
 )
 
 func main() {
-<<<<<<< Updated upstream
-
-	config := &firebase.Config{
-		StorageBucket: "test-fb724.appspot.com",
-	}
-	opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
-	app, err := firebase.NewApp(context.Background(), config, opt)
-=======
 
 	config := &firebase.Config{
 		StorageBucket: "test-fb724.appspot.com",
@@ -86,28 +75,10 @@ func downloadFile(filename string, bucket *storage.BucketHandle) {
 	defer rc.Close()
 
 	data, err := ioutil.ReadAll(rc)
->>>>>>> Stashed changes
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-<<<<<<< Updated upstream
-	client, err := app.Storage(context.Background())
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	bucket, err := client.DefaultBucket()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	// 'bucket' is an object defined in the cloud.google.com/go/storage package.
-	// See https://godoc.org/cloud.google.com/go/storage#BucketHandle
-	// for more details.
-	// [END cloud_storage_golang]
-
-	log.Printf("Created bucket handle: %v\n", bucket)
-=======
 	f, err := os.Create(filename)
 	if err != nil {
 		log.Printf("Create download file failed: %e", err)
@@ -117,5 +88,4 @@ func downloadFile(filename string, bucket *storage.BucketHandle) {
 	f.Write(data)
 
 	log.Printf("Downloaded contents: %v\n", string(data))
->>>>>>> Stashed changes
 }
