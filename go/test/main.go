@@ -12,6 +12,16 @@ import (
 	"google.golang.org/api/option"
 )
 
+// File info write to json
+type File struct {
+	Name string `json:"name"`
+	Dir  string `json:"dir"`
+	Md5  string `json:"md5"`
+}
+
+// Files file slince
+type Files []File
+
 func main() {
 
 	config := &firebase.Config{
@@ -35,25 +45,16 @@ func main() {
 
 	log.Printf("Created bucket handle: %v\n", bucket)
 
-	downloadFile("history.json", bucket)
+	downloadFile("init.json", bucket)
 
 }
 
 // uploadFile upload an object.
 func uploadFile(firename string, bucket *storage.BucketHandle) {
 
-	contentType := "text/plain"
 	ctx := context.Background()
 
 	writer := bucket.Object(firename).NewWriter(ctx)
-	writer.ObjectAttrs.ContentType = contentType
-	writer.ObjectAttrs.CacheControl = "no-cache"
-	writer.ObjectAttrs.ACL = []storage.ACLRule{
-		{
-			Entity: storage.AllUsers,
-			Role:   storage.RoleReader,
-		},
-	}
 
 	f, err := os.Open(firename)
 	if _, err = io.Copy(writer, f); err != nil {
@@ -86,6 +87,4 @@ func downloadFile(filename string, bucket *storage.BucketHandle) {
 	defer f.Close()
 
 	f.Write(data)
-
-	log.Printf("Downloaded contents: %v\n", string(data))
 }
