@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -106,6 +107,7 @@ func mcstart() {
 // normalSync sync mincraft server
 func normalSync(now Files, bucket *storage.BucketHandle) {
 
+	// wg := sync.WaitGroup{}
 	var files Files
 
 	err := filepath.Walk(src,
@@ -113,7 +115,7 @@ func normalSync(now Files, bucket *storage.BucketHandle) {
 			if err != nil {
 				return err
 			}
-			if !info.IsDir() && info.Name() != "main.go" {
+			if !info.IsDir() && info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" {
 				Md5 := HashFileMd5(path)
 				// if !Checkmd5(Md5, now) {
 
@@ -127,19 +129,27 @@ func normalSync(now Files, bucket *storage.BucketHandle) {
 				// 	// }
 
 				// }
+				// !info.IsDir() &&
 				list := File{info.Name(), path, Md5}
 				files = append(files, list)
-				uploadFile(path, bucket)
+				// wg.Add(1)
+				// go func(firename string, bucket *storage.BucketHandle, wg sync.WaitGroup) {
+				// 	uploadFile(firename, bucket)
+				// 	wg.Done()
+				// }(path, bucket, wg)
+				go uploadFile(path, bucket)
+
 			}
 
 			return nil
 		})
 	if err != nil {
-		log.Printf("Filepath Walk Failed: %e", err)
+		log.Printf("Filepath Walk Failed: %v\n", err)
 	}
 	fmt.Println(now)
 	Adddb(files)
 
+	// wg.Wait()
 	uploadFile("init.json", bucket)
 
 }
@@ -204,8 +214,9 @@ func uploadFile(firename string, bucket *storage.BucketHandle) {
 
 	ctx := context.Background()
 
-	writer := bucket.Object(firename).NewWriter(ctx)
+	writer := bucket.Object(strings.Replace(firename, string(filepath.Separator), "/", -1)).NewWriter(ctx)
 
+	fmt.Println(firename)
 	f, err := os.Open(firename)
 	if _, err = io.Copy(writer, f); err != nil {
 		log.Fatalln(err)
@@ -242,13 +253,20 @@ func downloadFile(filename string, bucket *storage.BucketHandle) {
 // Adddb add file to history.json
 func Adddb(list Files) {
 
-	f, _ := os.OpenFile("init.json", os.O_CREATE|os.O_WRONLY, 0)
+	if !Exists("init.json") {
+		os.Create("init.json")
+	}
+
+	f, err := os.OpenFile("init.json", os.O_RDWR, 0644)
+	if err != nil {
+		log.Printf("Open init.json failed: %v\n", err)
+	}
 	defer f.Close()
 	enc := json.NewEncoder(f)
 
-	err := enc.Encode(list)
+	err = enc.Encode(list)
 	if err != nil {
-		log.Printf("Error in encoding json: %e", err)
+		log.Printf("Error in encoding json: %v\n", err)
 	}
 }
 
