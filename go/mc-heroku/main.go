@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -36,44 +37,126 @@ var src = ".\\"
 const Version = "1.16.3"
 
 func main() {
-	config := &firebase.Config{
-		StorageBucket: "test-fb724.appspot.com",
-	}
-	opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
-	app, err := firebase.NewApp(context.Background(), config, opt)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// config := &firebase.Config{
+	// 	StorageBucket: "test-fb724.appspot.com",
+	// }
+	// opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
+	// app, err := firebase.NewApp(context.Background(), config, opt)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
-	client, err := app.Storage(context.Background())
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// client, err := app.Storage(context.Background())
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
-	bucket, err := client.DefaultBucket()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// bucket, err := client.DefaultBucket()
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
-	fmt.Println("hello")
-	normalSync(Files{}, bucket)
+	// fmt.Println("hello")
+	// normalSync(Files{}, bucket)
 
-	// go Sync()
-	// mcstart()
+	initSync()
+	go Sync()
+	go Stop()
+	mcstart()
 
 }
 
 // Sync is mcserver
 func Sync() {
-	fmt.Println("Sync now")
+	fmt.Println("Start minecraft server")
 
 	for {
-		time.Sleep(time.Second * 30)
+		time.Sleep(time.Second * 600)
 
-		fmt.Println("-----------")
+		fmt.Println("Start sync mc world")
+
+		config := &firebase.Config{
+			StorageBucket: "test-fb724.appspot.com",
+		}
+		opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
+		app, err := firebase.NewApp(context.Background(), config, opt)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		client, err := app.Storage(context.Background())
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		bucket, err := client.DefaultBucket()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		jsonFile, err := os.Open("init.json")
+
+		if err != nil {
+			log.Printf("Open init.json failed: %e", err)
+		}
+
+		defer jsonFile.Close()
+
+		byteValue, _ := ioutil.ReadAll(jsonFile)
+
+		var files Files
+		json.Unmarshal([]byte(byteValue), &files)
+
+		normalSync(files, bucket)
 
 	}
 
+}
+
+// Stop Scan comsole if input stop to sync and stop
+func Stop() {
+	var comment string
+	fmt.Scan(&comment)
+	if comment == "stop" {
+		fmt.Println("Start sync mc world")
+
+		config := &firebase.Config{
+			StorageBucket: "test-fb724.appspot.com",
+		}
+		opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
+		app, err := firebase.NewApp(context.Background(), config, opt)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		client, err := app.Storage(context.Background())
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		bucket, err := client.DefaultBucket()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		jsonFile, err := os.Open("init.json")
+
+		if err != nil {
+			log.Printf("Open init.json failed: %e", err)
+		}
+
+		defer jsonFile.Close()
+
+		byteValue, _ := ioutil.ReadAll(jsonFile)
+
+		var files Files
+		json.Unmarshal([]byte(byteValue), &files)
+
+		normalSync(files, bucket)
+
+		fmt.Println("STOP server ")
+		os.Exit(3)
+	}
 }
 
 func mcstart() {
@@ -102,6 +185,42 @@ func mcstart() {
 
 	fmt.Println("Execute finished:" + string(outbytes))
 
+	fmt.Println("Start sync mc world")
+
+	config := &firebase.Config{
+		StorageBucket: "test-fb724.appspot.com",
+	}
+	opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
+	app, err := firebase.NewApp(context.Background(), config, opt)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	client, err := app.Storage(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	bucket, err := client.DefaultBucket()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	jsonFile, err := os.Open("init.json")
+
+	if err != nil {
+		log.Printf("Open init.json failed: %e", err)
+	}
+
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var files Files
+	json.Unmarshal([]byte(byteValue), &files)
+
+	normalSync(files, bucket)
+
 }
 
 // normalSync sync mincraft server
@@ -115,7 +234,7 @@ func normalSync(now Files, bucket *storage.BucketHandle) {
 			if err != nil {
 				return err
 			}
-			if !info.IsDir() && info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" {
+			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" && info.Name() != "session.lock" {
 				Md5 := HashFileMd5(path)
 				// if !Checkmd5(Md5, now) {
 
@@ -137,7 +256,11 @@ func normalSync(now Files, bucket *storage.BucketHandle) {
 				// 	uploadFile(firename, bucket)
 				// 	wg.Done()
 				// }(path, bucket, wg)
-				go uploadFile(path, bucket)
+
+				if !info.IsDir() {
+
+					go uploadFile(path, bucket)
+				}
 
 			}
 
@@ -190,9 +313,27 @@ func initSync() Files {
 	var files Files
 	json.Unmarshal([]byte(byteValue), &files)
 
+	wg := sync.WaitGroup{}
+
 	for _, v := range files {
-		downloadFile(v.Dir, bucket)
+		if v.Dir == ".\\" {
+			continue
+		}
+		if v.Md5 == "" {
+			os.Mkdir(v.Dir, os.ModePerm)
+
+			continue
+		}
+		fmt.Println(v.Dir)
+		wg.Add(1)
+
+		go func(filename string, bucket *storage.BucketHandle, wg *sync.WaitGroup) {
+			downloadFile(filename, bucket)
+			wg.Done()
+		}(v.Dir, bucket, &wg)
+		// go downloadFile(v.Dir, bucket)
 	}
+	wg.Wait()
 
 	return files
 }
@@ -210,14 +351,14 @@ func Exists(path string) bool {
 }
 
 // uploadFile upload an object.
-func uploadFile(firename string, bucket *storage.BucketHandle) {
+func uploadFile(filename string, bucket *storage.BucketHandle) {
 
 	ctx := context.Background()
 
-	writer := bucket.Object(strings.Replace(firename, string(filepath.Separator), "/", -1)).NewWriter(ctx)
+	writer := bucket.Object(strings.Replace(filename, string(filepath.Separator), "/", -1)).NewWriter(ctx)
 
-	fmt.Println(firename)
-	f, err := os.Open(firename)
+	fmt.Println(filename)
+	f, err := os.Open(filename)
 	if _, err = io.Copy(writer, f); err != nil {
 		log.Fatalln(err)
 	}
@@ -230,7 +371,7 @@ func uploadFile(firename string, bucket *storage.BucketHandle) {
 
 func downloadFile(filename string, bucket *storage.BucketHandle) {
 	ctx := context.Background()
-	rc, err := bucket.Object(filename).NewReader(ctx)
+	rc, err := bucket.Object(strings.Replace(filename, string(filepath.Separator), "/", -1)).NewReader(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -243,7 +384,7 @@ func downloadFile(filename string, bucket *storage.BucketHandle) {
 
 	f, err := os.Create(filename)
 	if err != nil {
-		log.Printf("Create download file failed: %e", err)
+		log.Printf("Create download file failed: %v\n", err)
 	}
 	defer f.Close()
 
