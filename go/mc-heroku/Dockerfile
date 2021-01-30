@@ -1,7 +1,5 @@
 FROM openjdk:8u212
 
-RUN apt -U --no-cache upgrade
-
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     vim \
