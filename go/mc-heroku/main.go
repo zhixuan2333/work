@@ -35,7 +35,7 @@ var src = ".\\"
 
 func main() {
 
-	initSync()
+	// initSync()
 	go Sync()
 	mcstart()
 
@@ -109,18 +109,6 @@ func normalSync(status int) {
 		log.Fatalln(err)
 	}
 
-	jsonFile, err := os.Open("init.json")
-
-	if err != nil {
-		log.Printf("Open init.json failed: %e", err)
-	}
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	var now Files
-	json.Unmarshal([]byte(byteValue), &now)
-
-	jsonFile.Close()
 	wg := sync.WaitGroup{}
 	var files Files
 	var tmp string
@@ -132,37 +120,36 @@ func normalSync(status int) {
 			}
 			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" && info.Name() != "token.json" && info.Name() != "Dockerfile" && info.Name() != "entrypoint.sh" {
 				Md5 := HashFileMd5(path)
-				if !Checkmd5(Md5, now) || Md5 == "" {
 
-					if status == 0 && info.Name() == "session.lock" {
-						return nil
+				if status == 0 && info.Name() == "session.lock" {
+					return nil
 
-					}
-
-					// if path[len(path)-5:] != ".webp" || path[len(path)-5:] != ".json" {
-					// 	list.Name = info.Name()
-					// 	list.Dir = path
-					// 	list.Md5 = Md5
-					// 	now = append(now, list)
-					// 	fmt.Println("NOW")
-
-					// }
-					// wg.Add(1)
-					// go func(firename string, bucket *storage.BucketHandle, wg sync.WaitGroup) {
-					// 	uploadFile(firename, bucket)
-					// 	wg.Done()
-					// }(path, bucket, wg)
-					tmp = strings.Replace(path, string(filepath.Separator), "/", -1)
-
-					if !info.IsDir() {
-						wg.Add(1)
-						go func(firename string, bucket *storage.BucketHandle, wg *sync.WaitGroup) {
-							uploadFile(firename, bucket)
-							wg.Done()
-						}(tmp, bucket, &wg)
-
-					}
 				}
+
+				// if path[len(path)-5:] != ".webp" || path[len(path)-5:] != ".json" {
+				// 	list.Name = info.Name()
+				// 	list.Dir = path
+				// 	list.Md5 = Md5
+				// 	now = append(now, list)
+				// 	fmt.Println("NOW")
+
+				// }
+				// wg.Add(1)
+				// go func(firename string, bucket *storage.BucketHandle, wg sync.WaitGroup) {
+				// 	uploadFile(firename, bucket)
+				// 	wg.Done()
+				// }(path, bucket, wg)
+				tmp = strings.Replace(path, string(filepath.Separator), "/", -1)
+
+				if !info.IsDir() {
+					wg.Add(1)
+					go func(firename string, bucket *storage.BucketHandle, wg *sync.WaitGroup) {
+						uploadFile(firename, bucket)
+						wg.Done()
+					}(tmp, bucket, &wg)
+
+				}
+
 				list := File{info.Name(), tmp, Md5}
 				files = append(files, list)
 				// }
@@ -175,7 +162,7 @@ func normalSync(status int) {
 	if err != nil {
 		log.Printf("Filepath Walk Failed: %v\n", err)
 	}
-	fmt.Println(now)
+
 	Adddb(files)
 	wg.Wait()
 
@@ -210,7 +197,7 @@ func initSync() Files {
 	jsonFile, err := os.Open("init.json")
 
 	if err != nil {
-		log.Printf("Open init.json failed: %e", err)
+		log.Printf("Open init.json failed: %v\n", err)
 	}
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
