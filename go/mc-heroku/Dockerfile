@@ -16,4 +16,7 @@ RUN chmod 777 /minecraft/mc-heroku
 RUN chmod 444 /minecraft/token.json
 RUN chmod +x /minecraft/entrypoint.sh
 
-# ENTRYPOINT ["/entrypoint.sh"]
+RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
+ && chmod 755 /usr/local/bin/frpc
+
+ENTRYPOINT ["/entrypoint.sh"]
