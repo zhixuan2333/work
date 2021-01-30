@@ -40,7 +40,6 @@ func main() {
 
 	initSync()
 	go Sync()
-	go Stop()
 	mcstart()
 
 	// normalSync(1)
@@ -57,19 +56,6 @@ func Sync() {
 
 	}
 
-}
-
-// Stop Scan comsole if input stop to sync and stop
-func Stop() {
-	var comment string
-	fmt.Scan(&comment)
-	if comment == "stop" {
-
-		normalSync(0)
-
-		fmt.Println("STOP server ")
-		os.Exit(3)
-	}
 }
 
 func mcstart() {
@@ -132,14 +118,13 @@ func normalSync(status int) {
 		log.Printf("Open init.json failed: %e", err)
 	}
 
-	defer jsonFile.Close()
-
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	var now Files
 	json.Unmarshal([]byte(byteValue), &now)
 
-	// wg := sync.WaitGroup{}
+	jsonFile.Close()
+	wg := sync.WaitGroup{}
 	var files Files
 
 	err = filepath.Walk(src,
@@ -147,7 +132,7 @@ func normalSync(status int) {
 			if err != nil {
 				return err
 			}
-			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" {
+			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" && info.Name() != "token.json" && info.Name() != "Dockerfile" && info.Name() != "entrypoint.sh" {
 				Md5 := HashFileMd5(path)
 				if !Checkmd5(Md5, now) || Md5 == "" {
 
@@ -169,12 +154,17 @@ func normalSync(status int) {
 					// 	uploadFile(firename, bucket)
 					// 	wg.Done()
 					// }(path, bucket, wg)
+					tmp := strings.Replace(path, string(filepath.Separator), "/", -1)
 
-					list := File{info.Name(), path, Md5}
+					list := File{info.Name(), tmp, Md5}
 					files = append(files, list)
 					if !info.IsDir() {
+						wg.Add(1)
+						go func(firename string, bucket *storage.BucketHandle, wg *sync.WaitGroup) {
+							uploadFile(firename, bucket)
+							wg.Done()
+						}(tmp, bucket, &wg)
 
-						go uploadFile(path, bucket)
 					}
 				}
 				// }
@@ -189,6 +179,7 @@ func normalSync(status int) {
 	}
 	fmt.Println(now)
 	Adddb(files)
+	wg.Wait()
 
 	// wg.Wait()
 	uploadFile("init.json", bucket)
@@ -224,12 +215,11 @@ func initSync() Files {
 		log.Printf("Open init.json failed: %e", err)
 	}
 
-	defer jsonFile.Close()
-
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	var files Files
 	json.Unmarshal([]byte(byteValue), &files)
+	jsonFile.Close()
 
 	wg := sync.WaitGroup{}
 
@@ -273,10 +263,10 @@ func uploadFile(filename string, bucket *storage.BucketHandle) {
 
 	ctx := context.Background()
 
-	writer := bucket.Object(strings.Replace(filename, string(filepath.Separator), "/", -1)).NewWriter(ctx)
+	writer := bucket.Object(filename).NewWriter(ctx)
 
 	fmt.Println(filename)
-	f, err := os.Open(strings.Replace(filename, string(filepath.Separator), "/", -1))
+	f, err := os.Open(filename)
 	if _, err = io.Copy(writer, f); err != nil {
 		log.Fatalln(err)
 	}
@@ -289,7 +279,7 @@ func uploadFile(filename string, bucket *storage.BucketHandle) {
 
 func downloadFile(filename string, bucket *storage.BucketHandle) {
 	ctx := context.Background()
-	rc, err := bucket.Object(strings.Replace(filename, string(filepath.Separator), "/", -1)).NewReader(ctx)
+	rc, err := bucket.Object(filename).NewReader(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -300,7 +290,7 @@ func downloadFile(filename string, bucket *storage.BucketHandle) {
 		log.Fatalln(err)
 	}
 
-	f, err := os.Create(strings.Replace(filename, string(filepath.Separator), "/", -1))
+	f, err := os.Create(filename)
 	if err != nil {
 		log.Printf("Create download file failed: %v\n", err)
 	}

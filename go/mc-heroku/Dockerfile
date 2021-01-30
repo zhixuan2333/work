@@ -16,4 +16,3 @@ RUN chmod 444 /minecraft/token.json
 RUN chmod +x /minecraft/entrypoint.sh
 
 # ENTRYPOINT ["/entrypoint.sh"]
-
