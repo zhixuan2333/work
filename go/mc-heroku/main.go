@@ -33,9 +33,6 @@ type Files []File
 
 var src = ".\\"
 
-// Version minecraft version
-const Version = "1.16.3"
-
 func main() {
 
 	initSync()
@@ -126,6 +123,7 @@ func normalSync(status int) {
 	jsonFile.Close()
 	wg := sync.WaitGroup{}
 	var files Files
+	var tmp string
 
 	err = filepath.Walk(src,
 		func(path string, info os.FileInfo, err error) error {
@@ -154,10 +152,8 @@ func normalSync(status int) {
 					// 	uploadFile(firename, bucket)
 					// 	wg.Done()
 					// }(path, bucket, wg)
-					tmp := strings.Replace(path, string(filepath.Separator), "/", -1)
+					tmp = strings.Replace(path, string(filepath.Separator), "/", -1)
 
-					list := File{info.Name(), tmp, Md5}
-					files = append(files, list)
 					if !info.IsDir() {
 						wg.Add(1)
 						go func(firename string, bucket *storage.BucketHandle, wg *sync.WaitGroup) {
@@ -167,6 +163,8 @@ func normalSync(status int) {
 
 					}
 				}
+				list := File{info.Name(), tmp, Md5}
+				files = append(files, list)
 				// }
 				// !info.IsDir() &&
 
