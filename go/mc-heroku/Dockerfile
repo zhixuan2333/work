@@ -11,9 +11,9 @@ COPY mc-heroku /minecraft/mc-heroku
 COPY token.json /minecraft/token.json
 COPY entrypoint.sh /minecraft/entrypoint.sh
 
-RUN chmod 777 mc-heroku
-RUN chmod 444 token.json
-RUN chmod +x /entrypoint.sh
+RUN chmod 777 /minecraft/mc-heroku
+RUN chmod 444 /minecraft/token.json
+RUN chmod +x /minecraft/entrypoint.sh
 
 # ENTRYPOINT ["/entrypoint.sh"]
 
