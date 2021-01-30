@@ -37,33 +37,13 @@ var src = ".\\"
 const Version = "1.16.3"
 
 func main() {
-	// config := &firebase.Config{
-	// 	StorageBucket: "test-fb724.appspot.com",
-	// }
-	// opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
-	// app, err := firebase.NewApp(context.Background(), config, opt)
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-
-	// client, err := app.Storage(context.Background())
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-
-	// bucket, err := client.DefaultBucket()
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-
-	// fmt.Println("hello")
-	// normalSync(Files{}, bucket)
 
 	initSync()
 	go Sync()
 	go Stop()
 	mcstart()
 
+	// normalSync(1)
 }
 
 // Sync is mcserver
@@ -73,41 +53,7 @@ func Sync() {
 	for {
 		time.Sleep(time.Second * 600)
 
-		fmt.Println("Start sync mc world")
-
-		config := &firebase.Config{
-			StorageBucket: "test-fb724.appspot.com",
-		}
-		opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
-		app, err := firebase.NewApp(context.Background(), config, opt)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		client, err := app.Storage(context.Background())
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		bucket, err := client.DefaultBucket()
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		jsonFile, err := os.Open("init.json")
-
-		if err != nil {
-			log.Printf("Open init.json failed: %e", err)
-		}
-
-		defer jsonFile.Close()
-
-		byteValue, _ := ioutil.ReadAll(jsonFile)
-
-		var files Files
-		json.Unmarshal([]byte(byteValue), &files)
-
-		normalSync(files, bucket)
+		normalSync(0)
 
 	}
 
@@ -118,41 +64,8 @@ func Stop() {
 	var comment string
 	fmt.Scan(&comment)
 	if comment == "stop" {
-		fmt.Println("Start sync mc world")
 
-		config := &firebase.Config{
-			StorageBucket: "test-fb724.appspot.com",
-		}
-		opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
-		app, err := firebase.NewApp(context.Background(), config, opt)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		client, err := app.Storage(context.Background())
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		bucket, err := client.DefaultBucket()
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		jsonFile, err := os.Open("init.json")
-
-		if err != nil {
-			log.Printf("Open init.json failed: %e", err)
-		}
-
-		defer jsonFile.Close()
-
-		byteValue, _ := ioutil.ReadAll(jsonFile)
-
-		var files Files
-		json.Unmarshal([]byte(byteValue), &files)
-
-		normalSync(files, bucket)
+		normalSync(0)
 
 		fmt.Println("STOP server ")
 		os.Exit(3)
@@ -185,12 +98,19 @@ func mcstart() {
 
 	fmt.Println("Execute finished:" + string(outbytes))
 
+	normalSync(1)
+
+}
+
+// normalSync sync mincraft server
+func normalSync(status int) {
+
 	fmt.Println("Start sync mc world")
 
 	config := &firebase.Config{
 		StorageBucket: "test-fb724.appspot.com",
 	}
-	opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
+	opt := option.WithCredentialsFile("token.json")
 	app, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
 		log.Fatalln(err)
@@ -216,51 +136,49 @@ func mcstart() {
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
-	var files Files
-	json.Unmarshal([]byte(byteValue), &files)
-
-	normalSync(files, bucket)
-
-}
-
-// normalSync sync mincraft server
-func normalSync(now Files, bucket *storage.BucketHandle) {
+	var now Files
+	json.Unmarshal([]byte(byteValue), &now)
 
 	// wg := sync.WaitGroup{}
 	var files Files
 
-	err := filepath.Walk(src,
+	err = filepath.Walk(src,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" && info.Name() != "session.lock" {
+			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" {
 				Md5 := HashFileMd5(path)
-				// if !Checkmd5(Md5, now) {
+				if !Checkmd5(Md5, now) || Md5 == "" {
 
-				// 	// if path[len(path)-5:] != ".webp" || path[len(path)-5:] != ".json" {
-				// 	// 	list.Name = info.Name()
-				// 	// 	list.Dir = path
-				// 	// 	list.Md5 = Md5
-				// 	// 	now = append(now, list)
-				// 	// 	fmt.Println("NOW")
+					if status == 0 && info.Name() == "session.lock" {
+						return nil
 
-				// 	// }
+					}
 
+					// if path[len(path)-5:] != ".webp" || path[len(path)-5:] != ".json" {
+					// 	list.Name = info.Name()
+					// 	list.Dir = path
+					// 	list.Md5 = Md5
+					// 	now = append(now, list)
+					// 	fmt.Println("NOW")
+
+					// }
+					// wg.Add(1)
+					// go func(firename string, bucket *storage.BucketHandle, wg sync.WaitGroup) {
+					// 	uploadFile(firename, bucket)
+					// 	wg.Done()
+					// }(path, bucket, wg)
+
+					list := File{info.Name(), path, Md5}
+					files = append(files, list)
+					if !info.IsDir() {
+
+						go uploadFile(path, bucket)
+					}
+				}
 				// }
 				// !info.IsDir() &&
-				list := File{info.Name(), path, Md5}
-				files = append(files, list)
-				// wg.Add(1)
-				// go func(firename string, bucket *storage.BucketHandle, wg sync.WaitGroup) {
-				// 	uploadFile(firename, bucket)
-				// 	wg.Done()
-				// }(path, bucket, wg)
-
-				if !info.IsDir() {
-
-					go uploadFile(path, bucket)
-				}
 
 			}
 
@@ -282,7 +200,7 @@ func initSync() Files {
 	config := &firebase.Config{
 		StorageBucket: "test-fb724.appspot.com",
 	}
-	opt := option.WithCredentialsFile("test-fb724-firebase-adminsdk-dcryi-81e7333440.json")
+	opt := option.WithCredentialsFile("token.json")
 	app, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
 		log.Fatalln(err)
@@ -395,7 +313,20 @@ func downloadFile(filename string, bucket *storage.BucketHandle) {
 func Adddb(list Files) {
 
 	if !Exists("init.json") {
-		os.Create("init.json")
+		_, err := os.Create("init.json")
+		if err != nil {
+			log.Printf("Create init.json failed: %v\n", err)
+		}
+
+	} else {
+		err := os.Remove("init.json")
+		if err != nil {
+			log.Printf("Remove init.json failed: %v\n", err)
+		}
+		_, err = os.Create("init.json")
+		if err != nil {
+			log.Printf("Create init.json failed: %v\n", err)
+		}
 	}
 
 	f, err := os.OpenFile("init.json", os.O_RDWR, 0644)
