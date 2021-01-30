@@ -276,7 +276,7 @@ func uploadFile(filename string, bucket *storage.BucketHandle) {
 	writer := bucket.Object(strings.Replace(filename, string(filepath.Separator), "/", -1)).NewWriter(ctx)
 
 	fmt.Println(filename)
-	f, err := os.Open(filename)
+	f, err := os.Open(strings.Replace(filename, string(filepath.Separator), "/", -1))
 	if _, err = io.Copy(writer, f); err != nil {
 		log.Fatalln(err)
 	}
@@ -300,7 +300,7 @@ func downloadFile(filename string, bucket *storage.BucketHandle) {
 		log.Fatalln(err)
 	}
 
-	f, err := os.Create(filename)
+	f, err := os.Create(strings.Replace(filename, string(filepath.Separator), "/", -1))
 	if err != nil {
 		log.Printf("Create download file failed: %v\n", err)
 	}
