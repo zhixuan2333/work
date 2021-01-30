@@ -19,4 +19,5 @@ RUN chmod +x /minecraft/entrypoint.sh
 RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
  && chmod 755 /usr/local/bin/frpc
 
+WORKDIR /minecraft
 CMD /minecraft/entrypoint.sh
