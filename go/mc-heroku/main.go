@@ -35,7 +35,7 @@ var src = ".\\"
 
 func main() {
 
-	// initSync()
+	initSync()
 	go Sync()
 	mcstart()
 
