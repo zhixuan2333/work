@@ -1,10 +1,13 @@
 FROM openjdk:8u212
 
-RUN apk -U --no-cache upgrade
+RUN apt -U --no-cache upgrade
 
-RUN apk add --no-cache -U \
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
     vim \
-    bash
+    bash \
+ && apt-get -y clean \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /minecraft
 COPY mc-heroku /minecraft/mc-heroku
