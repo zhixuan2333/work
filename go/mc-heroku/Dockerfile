@@ -19,5 +19,4 @@ RUN chmod +x /minecraft/entrypoint.sh
 RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
  && chmod 755 /usr/local/bin/frpc
 
-CMD echo | frpc -f 4d5d9503a4164891:852776 & \
- && /minecraft/mc-heroku
+CMD /minecraft/entrypoint.sh
