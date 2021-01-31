@@ -162,6 +162,7 @@ func normalSync(status int) {
 	wg := sync.WaitGroup{}
 	var files Files
 	var tmp string
+	ch := make(chan bool, 2)
 
 	err = filepath.Walk(src,
 		func(path string, info os.FileInfo, err error) error {
@@ -194,8 +195,10 @@ func normalSync(status int) {
 				if !info.IsDir() {
 					wg.Add(1)
 					go func(firename string, bucket *storage.BucketHandle, wg *sync.WaitGroup) {
+						ch <- true
 						uploadFile(firename, bucket)
 						wg.Done()
+						<-ch
 					}(tmp, bucket, &wg)
 
 				}
@@ -273,6 +276,7 @@ func initSync() Files {
 		wg.Done()
 	}(&wg)
 
+	ch := make(chan bool, 10)
 	for _, v := range files {
 		if v.Dir == ".\\" {
 			continue
@@ -286,8 +290,12 @@ func initSync() Files {
 		wg.Add(1)
 
 		go func(filename string, bucket *storage.BucketHandle, wg *sync.WaitGroup) {
+			ch <- true
+
 			downloadFile(filename, bucket)
 			wg.Done()
+
+			<-ch
 		}(v.Dir, bucket, &wg)
 		// go downloadFile(v.Dir, bucket)
 	}
