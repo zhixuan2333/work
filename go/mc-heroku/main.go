@@ -6,6 +6,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"html/template"
 	"io"
@@ -38,21 +39,31 @@ var src = "./"
 
 func main() {
 
-	initSync()
-	go Sync()
-	// mcstart()
+	var option string
+	flag.StringVar(&option, "o", "init", "option init or finish")
 
-	// normalSync(1)
+	if option == "finish" {
+		normalSync(1)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", Root)
+	} else {
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "12345"
+		initSync()
+		go Sync()
+		// mcstart()
+
+		// normalSync(1)
+
+		mux := http.NewServeMux()
+		mux.HandleFunc("/", Root)
+
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "12345"
+		}
+
+		http.ListenAndServe(":"+port, mux)
 	}
 
-	http.ListenAndServe(":"+port, mux)
 }
 
 // Root send message to root
