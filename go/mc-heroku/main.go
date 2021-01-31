@@ -7,9 +7,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -37,10 +39,33 @@ var src = ".\\"
 func main() {
 
 	initSync()
-	Sync()
+	go Sync()
 	// mcstart()
 
 	// normalSync(1)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", Root)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "12345"
+	}
+
+	http.ListenAndServe(":"+port, mux)
+}
+
+// Root send message to root
+func Root(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, err := template.ParseFiles("main.html")
+		if err != nil {
+			log.Printf("root failed: %e", err)
+		}
+		t.Execute(w, nil)
+	} else {
+		w.Write([]byte("Error"))
+	}
 }
 
 // Sync is mcserver
