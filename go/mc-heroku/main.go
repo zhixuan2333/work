@@ -34,7 +34,7 @@ type File struct {
 // Files file slince
 type Files []File
 
-var src = ".\\"
+var src = "./"
 
 func main() {
 
@@ -156,7 +156,7 @@ func normalSync(status int) {
 			if err != nil {
 				return err
 			}
-			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" && info.Name() != "token.json" && info.Name() != "Dockerfile" && info.Name() != "entrypoint.sh" {
+			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" && info.Name() != "token.json" && info.Name() != "Dockerfile" && info.Name() != "entrypoint.sh" && info.Name() != "heroku.yml" {
 				Md5 := HashFileMd5(path)
 
 				if status == 0 && info.Name() == "session.lock" {
