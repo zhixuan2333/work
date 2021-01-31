@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/md5"
 	"encoding/hex"
@@ -35,7 +36,7 @@ var src = ".\\"
 
 func main() {
 
-	initSync()
+	// initSync()
 	go Sync()
 	mcstart()
 
@@ -58,28 +59,40 @@ func Sync() {
 func mcstart() {
 
 	cmd := exec.Command("java", "-jar", "server.jar")
-
-	stdin, _ := cmd.StdinPipe()
-	stdout, _ := cmd.StdoutPipe()
-
-	if err := cmd.Start(); err != nil {
-		fmt.Println("Execute failed when Start:" + err.Error())
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
 		return
 	}
+	fmt.Println("Result: " + out.String())
 
-	// stdin.Write([]byte("go text for grep\n"))
-	// stdin.Write([]byte("go test text for grep\n"))
-	stdin.Close()
+	// cmd := exec.Command("java", "-jar", "server.jar")
 
-	outbytes, _ := ioutil.ReadAll(stdout)
-	stdout.Close()
+	// stdin, _ := cmd.StdinPipe()
+	// stdout, _ := cmd.StdoutPipe()
 
-	if err := cmd.Wait(); err != nil {
-		fmt.Println("Execute failed when Wait:" + err.Error())
-		return
-	}
+	// if err := cmd.Start(); err != nil {
+	// 	fmt.Println("Execute failed when Start:" + err.Error())
+	// 	return
+	// }
 
-	fmt.Println("Execute finished:" + string(outbytes))
+	// // stdin.Write([]byte("go text for grep\n"))
+	// // stdin.Write([]byte("go test text for grep\n"))
+	// stdin.Close()
+
+	// outbytes, _ := ioutil.ReadAll(stdout)
+	// stdout.Close()
+
+	// if err := cmd.Wait(); err != nil {
+	// 	fmt.Println("Execute failed when Wait:" + err.Error())
+	// 	return
+	// }
+
+	// fmt.Println("Execute finished:" + string(outbytes))
 
 	normalSync(1)
 
