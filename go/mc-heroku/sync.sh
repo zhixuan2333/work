@@ -2,6 +2,6 @@
 
 echo "Sync at now"
 
-git add app/.
+git add .
 
 git commit -am "Last sync at ${time}"
