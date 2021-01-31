@@ -167,7 +167,7 @@ func normalSync(status int) {
 			if err != nil {
 				return err
 			}
-			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" && info.Name() != "token.json" && info.Name() != "Dockerfile" && info.Name() != "entrypoint.sh" && info.Name() != "heroku.yml" {
+			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "init.json" && info.Name() != "token.json" && info.Name() != "Dockerfile" && info.Name() != "entrypoint.sh" && info.Name() != "heroku.yml" && info.Name() != "server.jar" {
 				Md5 := HashFileMd5(path)
 
 				if status == 0 && info.Name() == "session.lock" {
@@ -256,6 +256,21 @@ func initSync() Files {
 	jsonFile.Close()
 
 	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		resp, err := http.Get("https://launcher.mojang.com/v1/objects/f02f4473dbf152c23d7d484952121db0b36698cb/server.jar")
+		if err != nil {
+			log.Printf("download server.jar failed: %v\n", err)
+		}
+		defer resp.Body.Close()
+
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("Create server.jar failed: %v\n", err)
+		}
+		ioutil.WriteFile("server.jar", data, 0644)
+		wg.Done()
+	}(&wg)
 
 	for _, v := range files {
 		if v.Dir == ".\\" {
