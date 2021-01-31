@@ -6,4 +6,4 @@ echo | /minecraft/mc-heroku &
 
 sleep 15
 
-java -Xms64m -Xmx300m -jar server.jar nogui
+java -Xms1024M -Xmx1024M -jar server.jar nogui
