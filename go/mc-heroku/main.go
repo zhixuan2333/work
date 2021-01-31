@@ -168,7 +168,7 @@ func normalSync(status int) {
 			if err != nil {
 				return err
 			}
-			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "main.go" && info.Name() != "init.json" && info.Name() != "token.json" && info.Name() != "Dockerfile" && info.Name() != "entrypoint.sh" && info.Name() != "heroku.yml" && info.Name() != "server.jar" {
+			if info.Name() != "main.go" && info.Name() != "__debug_bin" && info.Name() != "main.html" && info.Name() != "init.json" && info.Name() != "token.json" && info.Name() != "Dockerfile" && info.Name() != "entrypoint.sh" && info.Name() != "heroku.yml" && info.Name() != "server.jar" {
 				Md5 := HashFileMd5(path)
 
 				if status == 0 && info.Name() == "session.lock" {
