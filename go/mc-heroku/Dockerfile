@@ -11,9 +11,7 @@ RUN apt-get update \
 
 # Add the keys and set permissions
 COPY id_rsa /root/.ssh/id_rsa
-COPY id_rsa.pub /root/.ssh/id_rsa.pub
-RUN chmod 777 /root/.ssh/id_rsa \
- && chmod 777 /root/.ssh/id_rsa.pub
+RUN chmod 777 /root/.ssh/id_rsa
 
 RUN mkdir /minecraft
 RUN mkdir /minecraft/app
