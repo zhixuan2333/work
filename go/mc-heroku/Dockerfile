@@ -25,7 +25,7 @@ RUN chmod +x /minecraft/sync.sh
 
 RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
  && curl -Lo /minecraft/app/server.jar https://launcher.mojang.com/v1/objects/f02f4473dbf152c23d7d484952121db0b36698cb/server.jar \
- && chmod 755 /usr/local/bin/frpc
+ && chmod 755 /usr/local/bin/frpc \
  && chmod 555 /minecraft/app/server.jar
 
 WORKDIR /minecraft
