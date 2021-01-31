@@ -37,8 +37,8 @@ var src = ".\\"
 func main() {
 
 	initSync()
-	go Sync()
-	mcstart()
+	Sync()
+	// mcstart()
 
 	// normalSync(1)
 }
@@ -58,7 +58,7 @@ func Sync() {
 
 func mcstart() {
 
-	cmd := exec.Command("java", "-Xms400M", "-Xmx400", "-jar", "server.jar", "nogui")
+	cmd := exec.Command("java", "-Xms200M", "-Xmx400", "-jar", "server.jar", "nogui")
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
