@@ -2,4 +2,5 @@ config.yml
 go-db-48bf0-firebase-adminsdk-qjruj-e562bd373d.json
 */history.json
 test-fb724-firebase-adminsdk-dcryi-81e7333440.json
-token.json
+id_rsa
+id_rsa.pub
