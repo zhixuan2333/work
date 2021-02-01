@@ -21,7 +21,8 @@ COPY id_rsa.pub /root/.ssh/id_rsa.pub
 RUN git config --global user.name "zhixuan666"
  && git config --global user.email "jinzhixuan666@gmail.com"
 
-RUN mkdir /minecraft
+RUN mkdir /minecraft \
+ && mkdir /minecraft/app
 COPY mc-heroku /minecraft/mc-heroku
 COPY entrypoint.sh /minecraft/entrypoint.sh
 COPY sync.sh /minecraft/sync.sh
