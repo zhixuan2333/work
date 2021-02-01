@@ -3,4 +3,5 @@
 echo "Sync at now"
 git add /minecraft/app
 git commit -am "Last sync at ${time}"
-git push origin main
+git push origin master
+echo "Sync done"
