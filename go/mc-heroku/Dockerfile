@@ -34,5 +34,7 @@ RUN chmod 555 /minecraft/mc-heroku \
  && chmod +x /minecraft/entrypoint.sh \
  && chmod +x /minecraft/sync.sh
 
+RUN eval "$(ssh-agent -s)" && ssh-add /root/.ssh/id_rsa
+
 WORKDIR /minecraft/app
 # CMD /minecraft/entrypoint.sh
