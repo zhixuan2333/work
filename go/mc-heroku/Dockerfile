@@ -16,6 +16,10 @@ RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
 
 # Add the keys and set permissions
 COPY id_rsa /root/.ssh/id_rsa
+COPY id_rsa.pub /root/.ssh/id_rsa.pub
+
+RUN git config --global user.name "zhixuan666"
+ && git config --global user.email "jinzhixuan666@gmail.com"
 
 RUN mkdir /minecraft
 COPY mc-heroku /minecraft/mc-heroku
@@ -24,8 +28,9 @@ COPY sync.sh /minecraft/sync.sh
 
 RUN chmod 555 /minecraft/mc-heroku \
  && chmod 555 /root/.ssh/id_rsa \
+ && chmod 555 /root/.ssh/id_rsa.pub \
  && chmod +x /minecraft/entrypoint.sh \
  && chmod +x /minecraft/sync.sh
 
 WORKDIR /minecraft/app
-CMD /minecraft/entrypoint.sh
+# CMD /minecraft/entrypoint.sh
