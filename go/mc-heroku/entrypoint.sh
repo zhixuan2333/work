@@ -7,13 +7,13 @@ mkdir /minecraft/app
 git init
 git remote add origin git@github.com:zhixuan666/mc-heroku.git
 git fetch
-git pull origin master
+git pull origin main
 
 echo "$(ls /minecraft)"
 echo "$(ls /minecraft/app)"
 
 java -Xms1024M -Xmx1024M -jar server.jar nogui
 
-echo | git add /minecraft/app
-
-echo | git commit -am "Last sync at ${time}"
+git add /minecraft/app
+git commit -am "Last sync at ${time}"
+git pull
