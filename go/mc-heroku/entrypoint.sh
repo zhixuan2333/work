@@ -16,4 +16,4 @@ java -Xms1024M -Xmx1024M -jar server.jar nogui
 
 git add /minecraft/app
 git commit -am "Last sync at ${time}"
-git pull
+git push origin main
