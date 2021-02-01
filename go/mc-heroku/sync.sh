@@ -2,6 +2,6 @@
 
 echo "Sync at now"
 
-git add .
+git add /minecraft/app
 
 git commit -am "Last sync at ${time}"

@@ -31,7 +31,7 @@ func Sync() {
 
 	for {
 		time.Sleep(time.Second * 600)
-		cmd := exec.Command("/bin/sh", "/minecraft/sync.sh")
+		cmd := exec.Command("/bin/sh", "-c", "/minecraft/sync.sh")
 		if _, err := cmd.Output(); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
