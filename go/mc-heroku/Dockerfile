@@ -18,7 +18,6 @@ RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
 COPY id_rsa /root/.ssh/id_rsa
 
 RUN mkdir /minecraft
-RUN mkdir /minecraft/app
 COPY mc-heroku /minecraft/mc-heroku
 COPY entrypoint.sh /minecraft/entrypoint.sh
 COPY sync.sh /minecraft/sync.sh
