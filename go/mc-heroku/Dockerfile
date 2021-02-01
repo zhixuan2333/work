@@ -21,7 +21,7 @@ RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
 COPY id_rsa /root/.ssh/id_rsa
 COPY id_rsa.pub /root/.ssh/id_rsa.pub
 
-RUN git config --global user.name "zhixuan666"
+RUN git config --global user.name "zhixuan666" \
  && git config --global user.email "jinzhixuan666@gmail.com"
 
 COPY mc-heroku /minecraft/mc-heroku
