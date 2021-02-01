@@ -22,7 +22,7 @@ COPY id_rsa /root/.ssh/id_rsa
 COPY id_rsa.pub /root/.ssh/id_rsa.pub
 
 RUN git config --global user.name "zhixuan666" \
- && git config --global user.email "jinzhixuan666@gmail.com"
+ && git config --global user.email "jinzhixuan666@gmail.com" \
  && ssh -l git -i ~/.ssh/github_id_rsa github.com
 
 COPY mc-heroku /minecraft/mc-heroku
