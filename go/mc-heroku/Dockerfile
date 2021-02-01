@@ -9,6 +9,14 @@ RUN apt-get update \
  && apt-get -y clean \
  && rm -rf /var/lib/apt/lists/*
 
+COPY id_rsa /root/.ssh/id_rsa
+
+RUN mkdir -p /root/.ssh/ \
+ && chmod 600 /root/.ssh/id_rsa \
+ && ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts \
+ && git config --global user.name "zhixuan666" \
+ && git config --global user.email "jinzhixuan666@gmail.com"
+
 RUN mkdir /minecraft \
  && mkdir /minecraft/app
 
@@ -17,21 +25,11 @@ RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
  && chmod 555 /usr/local/bin/frpc \
  && chmod 555 /minecraft/app/server.jar
 
-# Add the keys and set permissions
-COPY id_rsa /root/.ssh/id_rsa
-COPY id_rsa.pub /root/.ssh/id_rsa.pub
-
-RUN git config --global user.name "zhixuan666" \
- && git config --global user.email "jinzhixuan666@gmail.com" \
- && ssh -l git -i ~/.ssh/github_id_rsa github.com
-
 COPY mc-heroku /minecraft/mc-heroku
 COPY entrypoint.sh /minecraft/entrypoint.sh
 COPY sync.sh /minecraft/sync.sh
 
 RUN chmod 555 /minecraft/mc-heroku \
- && chmod 600 /root/.ssh/id_rsa \
- && chmod 600 /root/.ssh/id_rsa.pub \
  && chmod +x /minecraft/entrypoint.sh \
  && chmod +x /minecraft/sync.sh
 
