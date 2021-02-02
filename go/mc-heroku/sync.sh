@@ -2,7 +2,7 @@
 
 echo "Sync at now"
 
-git add /minecraft/mc-heroku
+git add /minecraft/app/mc-heroku
 git commit -am "Last sync at ${time}"
 git push origin master
 
