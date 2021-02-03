@@ -1,8 +1,13 @@
 #!/bin/bash
 
-cd /minecraft/app
+cd /minecraft
 
-git clone git@github.com:zhixuan666/mc-heroku.git
+curl https://$TOKEN:@api.github.com/repos/$REPO/releases/latest \
+   | grep "tarball_url" \
+   | cut -d '"' -f 4 \
+   | curl -Lo /minecraft/mc-server.zip
+
+# git clone git@github.com:zhixuan666/mc-heroku.git --depth 1
 
 echo "$(ls /minecraft/app/mc-heroku)"
 

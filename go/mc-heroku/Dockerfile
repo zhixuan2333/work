@@ -9,21 +9,16 @@ RUN apt-get update \
  && apt-get -y clean \
  && rm -rf /var/lib/apt/lists/*
 
-COPY id_rsa /root/.ssh/id_rsa
-
-RUN mkdir -p /root/.ssh/ \
- && chmod 600 /root/.ssh/id_rsa \
- && ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts \
+RUN ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts \
  && git config --global user.name "zhixuan666" \
  && git config --global user.email "jinzhixuan666@gmail.com"
 
 RUN mkdir /minecraft \
- && mkdir /minecraft/app
 
 RUN curl -Lo /usr/local/bin/frpc https://getfrp.sh/d/frpc_linux_amd64 \
- && curl -Lo /minecraft/app/server.jar https://launcher.mojang.com/v1/objects/f02f4473dbf152c23d7d484952121db0b36698cb/server.jar \
  && chmod 555 /usr/local/bin/frpc \
- && chmod 555 /minecraft/app/server.jar
+#  && chmod 555 /minecraft/app/server.jar
+#  && curl -Lo /minecraft/app/server.jar https://launcher.mojang.com/v1/objects/f02f4473dbf152c23d7d484952121db0b36698cb/server.jar \
 
 COPY mc-heroku /minecraft/mc-heroku
 COPY entrypoint.sh /minecraft/entrypoint.sh
