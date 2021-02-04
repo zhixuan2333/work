@@ -6,6 +6,7 @@ RUN apt-get update \
     bash \
     git \
     openssh-client \
+    wget \
  && apt-get -y clean \
  && rm -rf /var/lib/apt/lists/*
 

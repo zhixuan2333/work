@@ -2,10 +2,14 @@
 
 cd /minecraft
 
-curl https://$TOKEN:@api.github.com/repos/$REPO/releases/latest \
-   | grep "tarball_url" \
-   | cut -d '"' -f 4 \
-   | curl -Lo /minecraft/mc-server.zip
+
+wget --header="Authorization: token $TOKEN" -O - \
+   https://api.github.com/repos/$REPO/tarball/
+
+wget --header="Authorization: token <OAUTH-TOKEN>" -O - \
+    https://api.github.com/repos/<owner>/<repo>/tarball/<version> | \
+    tar xz --strip-components=1 && \
+    cp -r <dir1> <dir2> ... <dirn> <destination-dir>/
 
 # git clone git@github.com:zhixuan666/mc-heroku.git --depth 1
 
