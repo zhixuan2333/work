@@ -11,7 +11,7 @@ curl https://$TOKEN:@api.github.com/repos/$REPO/releases/latest \
 
 echo "$(ls /minecraft/app/mc-heroku)"
 
-echo | frpc -f 4d5d9503a4164891:852776 &
+echo | frpc -f $FRP_TOKEN &
 
 java -Xms1024M -Xmx1024M -jar /minecraft/app/mc-heroku/server.jar nogui
 
