@@ -21,3 +21,12 @@ heroku container:push web
 heroku container:release web
 
 heroku ps:scale web=1
+
+function ClickConnect() {
+console.log("Working"); 
+document
+  .querySelector('#top-toolbar > colab-connect-button')
+  .shadowRoot.querySelector('#connect')
+  .click() 
+}
+setInterval(ClickConnect, 60000)

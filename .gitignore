@@ -4,3 +4,4 @@ id_rsa
 id_rsa.pub
 go/mc-heroku/app
 test.sh
+tmp
