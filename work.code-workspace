@@ -125,6 +125,7 @@
 			"wordcount",
 			"yarnrc",
 			"zhixuan's"
-		]
+		],
+		"jupyter.jupyterServerType": "local"
 	}
 }
