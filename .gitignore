@@ -1,7 +1,5 @@
 config.yml
 */history.json
-id_rsa
-id_rsa.pub
-go/mc-heroku/app
 test.sh
 tmp
+go/zhixuan-line

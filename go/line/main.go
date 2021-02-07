@@ -72,6 +72,7 @@ func endpoint(w http.ResponseWriter, r *http.Request) {
 			log.Fatal("Get resp body failed: ", err)
 		}
 		decoded, _ := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
+		fmt.Println(body)
 
 		if CheckMAC(body, decoded) {
 			Resp(w, 200, "OK", "")
