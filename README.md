@@ -9,10 +9,9 @@
     <!-- - [line](./go/line)
         - line webhook server -->
 
-## note
+## note 
 
 go mod init heroku
-
 
 go mod tidy
 
@@ -23,10 +22,10 @@ heroku container:release web
 heroku ps:scale web=1
 
 function ClickConnect() {
-console.log("Working"); 
+console.log("Working");
 document
   .querySelector('#top-toolbar > colab-connect-button')
   .shadowRoot.querySelector('#connect')
-  .click() 
+  .click()
 }
 setInterval(ClickConnect, 60000)
