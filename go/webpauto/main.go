@@ -46,12 +46,12 @@ func WalkDir(now Files) {
 				Md5 := HashFileMd5(path)
 				if !Checkmd5(Md5, now) {
 
-					if path[len(path)-5:] != ".webp" || path[len(path)-5:] != ".json" {
+					if path[len(path)-5:] != ".webp" && path[len(path)-5:] != ".json" {
 						list.Name = info.Name()
 						list.Dir = path
 						list.Md5 = Md5
 						now = append(now, list)
-						fmt.Println("NOW")
+						fmt.Println("-> " + path)
 						Command(path, path+".webp")
 					}
 
