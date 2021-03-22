@@ -12,8 +12,8 @@ import (
 
 var (
 	name = "workspace" + time.Now().Format("2006_01_02") + ".zip"
-	src  = "D:\\workspace\\"
-	dst  = "D:\\back\\" + name
+	src  = "C:\\Users\\jinzh\\OneDrive\\文档\\workspace\\"
+	dst  = "C:\\Users\\jinzh\\OneDrive - Microsoft\\backup\\" + name
 )
 
 // compression: compression file
@@ -39,6 +39,7 @@ func compression(src, zipsrc string) {
 				log.Printf("Create failed: %s\n", err.Error())
 				return nil
 			}
+
 			fSrc, err := os.Open(path)
 			if err != nil {
 				log.Printf("Open failed: %s\n", err.Error())
