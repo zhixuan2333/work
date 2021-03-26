@@ -13,7 +13,7 @@ import (
 var (
 	name = "workspace" + time.Now().Format("2006_01_02") + ".zip"
 	src  = "C:\\Users\\jinzh\\OneDrive\\文档\\workspace\\"
-	dst  = "C:\\Users\\jinzh\\OneDrive - Microsoft\\backup\\" + name
+	dst  = "C:\\Users\\jinzh\\OneDrive - zhixuan233\\backup\\" + name
 )
 
 // compression: compression file
