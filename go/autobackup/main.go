@@ -22,7 +22,7 @@ func compression(src, zipsrc string) {
 	// creat: zip file
 	zipfile, err := os.Create(zipsrc)
 	if err != nil {
-		log.Fatalf("creat zip file err :%s/n", err.Error())
+		log.Fatalf("creat zip file err :%v/n", err.Error())
 		return
 	}
 	defer zipfile.Close()
@@ -36,19 +36,20 @@ func compression(src, zipsrc string) {
 		if !info.IsDir() {
 			fDest, err := archive.Create(path[len(src)+0:])
 			if err != nil {
-				log.Printf("Create failed: %s\n", err.Error())
+				log.Printf("Create failed: %v\n", err.Error())
 				return nil
 			}
 
 			fSrc, err := os.Open(path)
 			if err != nil {
-				log.Printf("Open failed: %s\n", err.Error())
+				log.Printf("Open failed: %v\n", err.Error())
 				return nil
 			}
 			defer fSrc.Close()
+
 			_, err = io.Copy(fDest, fSrc)
 			if err != nil {
-				log.Printf("Copy failed: %s\n", err.Error())
+				log.Printf("Copy failed: %v\n", err.Error())
 				return nil
 			}
 		}
