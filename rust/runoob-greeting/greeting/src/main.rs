@@ -4,7 +4,7 @@ fn main() {
     let index = loop {
         let ch = list[i];
         if ch == 150 {
-            break i+1;
+            break i + 1;
         }
         i += 1
     };
