@@ -6,6 +6,9 @@
         - 一键backup
     - [vscode_ffmpeg_go](./go/vscode_electron)
         - 获取 ```vscode``` 对应的 ```electron``` 文件
+    - [img2webp](./go/webp_auto)
+        - img2webp 判断文件是否更改，后转换
+    
     <!-- - [line](./go/line)
         - line webhook server -->
 
