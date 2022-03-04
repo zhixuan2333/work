@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.py": "python",
+        "*.html": "html",
+        "*.svelte": "svelte",
+        "limits.h": "c"
+    }
+}
